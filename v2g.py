@@ -1,14 +1,29 @@
 import re
 import networkx as nx
 import matplotlib.pyplot as plt
+import math
+import easygui
 
-f = open("src_verilog/lib/flit_buffer.v", "r")
-module_name="module flit_buffer"
+verilog_file_name=easygui.fileopenbox()
+
+f = open(verilog_file_name, "r")
 en=False
 variables=[]
 variables2=[]
 matches = ["input", "output","wire","reg"]
 body=[]
+modules=[]
+
+for line in f:
+    if "module" in line:
+        if "endmodule" not in line:
+            modules.append((line.split(" "))[1])
+
+reply   = easygui.choicebox("Select the Module", "Select", modules)
+
+f = open(verilog_file_name, "r")
+
+module_name="module "+reply
 
 for x in f:
     if x[0:1]!="//":
@@ -69,18 +84,20 @@ for x in variables2:
                         edges_set.append(set([x,y]))
 
 
-print (edges_set)
+# print (edges_set)
 
 G=nx.Graph()
 G.add_nodes_from(variables2)
 G.add_edges_from(edges_set)
 
+pos=nx.spring_layout(G,0.6)
+print(G.degree())
 print(G.nodes())
 print(G.edges())
 
-print(type(G.nodes()))
-print(type(G.edges()))
+# print(type(G.nodes()))
+# print(type(G.edges()))
 
-nx.draw(G)
-# plt.savefig("simple_path.png") # save as png
+nx.draw(G,pos,with_labels=True)
+# plt.savefig("graphs/"+verilog_module_name+".png") # save as png
 plt.show()
